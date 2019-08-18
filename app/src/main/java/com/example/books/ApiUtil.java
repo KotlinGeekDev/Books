@@ -23,13 +23,14 @@ public class ApiUtil {
     public static final String BASE_API_URL = "https://www.googleapis.com/books/v1/volumes";
     public static final String QUERY_PARAMETER_KEY = "q";
     public static final String KEY = "key";
-    public static final String API_KEY = "AIzaSyBi1Upte3qFSLPZ-8bAQhx3WE6MRMoqHqU";
+    public static final String API_KEY = "AIzaSyA5BMPFb9QQThJAWMA6OCA4ake2T_EczOo";
 
     public static URL buildUrl(String title){
         String fullUrl = BASE_API_URL + "?q=" + title;
 
         URL url = null;
         Uri uri = Uri.parse(BASE_API_URL).buildUpon()
+                .appendQueryParameter(QUERY_PARAMETER_KEY, title)
                 .appendQueryParameter(KEY, API_KEY)
                 .build();
         try {
@@ -76,6 +77,10 @@ public class ApiUtil {
         final String PUBLISHED_DATE = "publishedDate";
         final String ITEMS = "items";
         final String VOLUMEINFO = "volumeInfo";
+        final String DESCRIPTION = "description";
+        final String IMAGELINKS = "imageLinks";
+        final String THUMBNAIL = "thumbnail";
+
         ArrayList<Book> books = new ArrayList<>();
         try {
             JSONObject jsonBooks = new JSONObject(json);
@@ -84,6 +89,7 @@ public class ApiUtil {
             for (int i = 0; i < numOfBooks; i++) {
                 JSONObject bookJSON = arrayBooks.getJSONObject(i);
                 JSONObject volumeInfoJSON = bookJSON.getJSONObject(VOLUMEINFO);
+                JSONObject imageLinksJSON = volumeInfoJSON.getJSONObject(IMAGELINKS);
                 int authorNum = volumeInfoJSON.getJSONArray(AUTHORS).length();
                 
                 String[] authors = new String[authorNum];
@@ -96,7 +102,9 @@ public class ApiUtil {
                         (volumeInfoJSON.isNull(SUBTITLE)? "": volumeInfoJSON.getString(SUBTITLE)),
                         authors,
                         volumeInfoJSON.getString(PUBLISHER),
-                        volumeInfoJSON.getString(PUBLISHED_DATE));
+                        volumeInfoJSON.getString(PUBLISHED_DATE),
+                        volumeInfoJSON.getString(DESCRIPTION),
+                        imageLinksJSON.getString(THUMBNAIL));
                 books.add(book);
             }
         } catch (JSONException e){
