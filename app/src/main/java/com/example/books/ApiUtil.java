@@ -23,7 +23,7 @@ public class ApiUtil {
     public static final String BASE_API_URL = "https://www.googleapis.com/books/v1/volumes";
     public static final String QUERY_PARAMETER_KEY = "q";
     public static final String KEY = "key";
-    public static final String API_KEY = "AIzaSyA5BMPFb9QQThJAWMA6OCA4ake2T_EczOo";
+    public static final String MY_API_KEY = BuildConfig.API_KEY;
     public static final String TITLE = "intitle:";
     public static final String AUTHOR = "inauthor:";
     public static final String PUBLISHER = "inpublisher:";
@@ -35,7 +35,7 @@ public class ApiUtil {
         URL url = null;
         Uri uri = Uri.parse(BASE_API_URL).buildUpon()
                 .appendQueryParameter(QUERY_PARAMETER_KEY, title)
-                .appendQueryParameter(KEY, API_KEY)
+                .appendQueryParameter(KEY, MY_API_KEY)
                 .build();
         try {
             url = new URL(uri.toString());
@@ -58,7 +58,7 @@ public class ApiUtil {
         String query = sb.toString();
         Uri uri = Uri.parse(BASE_API_URL).buildUpon()
                 .appendQueryParameter(QUERY_PARAMETER_KEY, query)
-                .appendQueryParameter(KEY, API_KEY)
+                .appendQueryParameter(KEY, MY_API_KEY)
                 .build();
 
         try {
