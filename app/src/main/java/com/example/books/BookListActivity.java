@@ -1,9 +1,10 @@
 package com.example.books;
 
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,12 +31,22 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
 
         mLoadingProgress = findViewById(R.id.pb_loading);
         rvBooks = findViewById(R.id.rv_books);
+        Intent intent = getIntent();
+        String query = intent.getStringExtra("Query");
+        URL bookUrl;
+
         LinearLayoutManager booksLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         rvBooks.setLayoutManager(booksLayoutManager);
 
 
         try {
-            URL bookUrl = ApiUtil.buildUrl("programming");
+            if (query==null || query.isEmpty()){
+                bookUrl = ApiUtil.buildUrl("programming");
+            }
+             else {
+                 bookUrl = new URL(query);
+            }
+
             new BookQueryTask().execute(bookUrl);
         } catch (Exception e) {
             Log.d("Error", e.getMessage());
@@ -48,7 +59,49 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
         final MenuItem firstItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(firstItem);
         searchView.setOnQueryTextListener(this);
+
+        ArrayList<String> recentList = SpUtil.getQueryList(getApplicationContext());
+        int itemNumber = recentList.size();
+        MenuItem recentMenu;
+        for (int i = 0; i < itemNumber; i++) {
+            recentMenu = menu.add(Menu.NONE, i, Menu.NONE, recentList.get(i));
+        }
+        
+        
+        
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+            switch (item.getItemId()){
+                case R.id.action_advanced_search:
+                    Intent intent = new Intent(this, SearchActivity.class);
+                    startActivity(intent);
+
+                default:
+                    int position = item.getItemId() + 1;
+                    String preferenceName = SpUtil.QUERY + String.valueOf(position);
+                    String query = SpUtil.getPrefernceString(getApplicationContext(), preferenceName);
+                    String[] prefParams = query.split("\\,");
+                    String[] queryParams = new String[4];
+
+                    for (int i = 0; i < prefParams.length; i++) {
+                        queryParams[i] = prefParams[i];
+                    }
+                    URL bookUrl = ApiUtil.buildUrl(
+                            (queryParams[0]==null)? "": queryParams[0],
+                            (queryParams[1]==null)? "": queryParams[1],
+                            (queryParams[2]==null)? "": queryParams[2],
+                            (queryParams[3]==null)? "": queryParams[3]
+                    );
+
+
+
+                    return super.onOptionsItemSelected(item);
+            }
+
     }
 
     @Override
@@ -100,11 +153,12 @@ public class BookListActivity extends AppCompatActivity implements SearchView.On
              else {
                 rvBooks.setVisibility(View.VISIBLE);
                 tvError.setVisibility(View.INVISIBLE);
-            }
-            ArrayList<Book> books = ApiUtil.getBooksFromJson(result);
+                ArrayList<Book> books = ApiUtil.getBooksFromJson(result);
 
-            BooksAdapter booksAdapter = new BooksAdapter(books);
-            rvBooks.setAdapter(booksAdapter);
+                BooksAdapter booksAdapter = new BooksAdapter(books);
+                rvBooks.setAdapter(booksAdapter);
+            }
+
         }
 
         @Override

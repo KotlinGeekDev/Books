@@ -4,4 +4,6 @@
     <dimen name="authors_size">18sp</dimen>
     <dimen name="publish_date_padding">8dp</dimen>
     <dimen name="standard_margin">16dp</dimen>
+    <dimen name="dimen_search_activity">24dp</dimen>
+    <dimen name="search_button_text_size">18sp</dimen>
 </resources>
